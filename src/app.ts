@@ -1,5 +1,6 @@
 import express from "express";
 import { randomUUID } from "node:crypto";
+import supabrase from "./suprabase.js";
 
 const app = express();
 
@@ -179,5 +180,31 @@ app.get("/products", (req, res) => {
   res.status(200).json({ products });
 });
 
+//===========
+//SupaBase
+//===========
+app.get("test-supabase", async (req, res) =>{
+  const {data,error} = await supabrase
+  .from("categorias")
+  .select("*");
+
+  if(error){
+
+    console.log("Erro ao consultar SupaBase: ", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Erro ao consultar o banco de dados",
+      error: error.message,
+    })
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Conexão com SupaBase realizada com sucesso!",
+    data,
+  })
+
+});
 
 export default app;

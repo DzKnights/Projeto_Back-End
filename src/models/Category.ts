@@ -86,9 +86,10 @@ async function searchByKeyword(keyword: string) {
     const { data, error } = await supabase
         .from("categories")
         .select("*")
-        .or(`name.ilike.%${keyword}%,description.ilike.%${keyword}%`);
-
-    if (error) {
+        .or(`name.ilike.%${keyword}%,description.ilike.%${keyword}%`)
+        .order("display_order", {ascending: true});
+    
+        if (error) {
         throw error;
     }
 

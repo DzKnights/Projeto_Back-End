@@ -1,5 +1,6 @@
 import type {Request, Response} from "express";
 import  CategoryRepository  from "../repository/CategoryRepository.js";
+import { Category } from "../models/Category.js";
 
 async function getAll (req: Request, res: Response){
      try {
@@ -47,7 +48,14 @@ async function getById( req: Request< { id: string }>, res:Response) {
         try {
                 const category = await CategoryRepository.findById(id);
         
-                res.status(200).json(category);
+                res.status(200).json({
+            id: category.getId(),
+            name: category.getName(),
+            description: category.getDescription(),
+            icon: category.getIcon(),
+            display_order: category.getDisplayOrder(),
+            active: category.isActive(),
+        });
             } catch (error) {
                 console.error("Erro ao buscar categoria: ", error);
         
@@ -58,10 +66,14 @@ async function getById( req: Request< { id: string }>, res:Response) {
 }
 
 async function create(req:Request, res: Response) {
+
+    const { name, display_order, description, icon } = req.body;
+
      try {
-            const category = await CategoryRepository.create(req.body);
+            const category = new Category(name, display_order, description, icon);
+            const createdCategory = await CategoryRepository.create(category);
     
-            res.status(200).json(category);
+            res.status(200).json(createdCategory);
         } catch (error) {
             console.error("Erro ao criar categoria: ", error);
     
@@ -81,9 +93,12 @@ async function update(req: Request <{id: string}>, res:Response){
 
     }
     try {
-            const category = await CategoryRepository.update(req.params.id, req.body);
+            const category = await CategoryRepository.findById(req.params.id);
+
+            //Criar validações para os campos que podem ser alterados, caso não sejam informados, manter os valores atuais.
+            const UpdatedCategory = await CategoryRepository.update(req.params.id, req.body);
     
-            res.status(200).json(category);
+            res.status(200).json(UpdatedCategory);
         } catch (error) {
             console.error("Erro ao alterar categoria: ", error);
     
